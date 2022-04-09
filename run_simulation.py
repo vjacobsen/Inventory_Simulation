@@ -19,7 +19,7 @@ def execute_run(inv_system_args, run_periods):
 
 
 if __name__ == "__main__":
-    # Test run parameters
+    # Test run with parameters
     inv_system_args = {
     "starting_value": 200,
     'order_up_to':400,
@@ -30,6 +30,8 @@ if __name__ == "__main__":
     print('------------------------------------------')
     print('TEST RUN RESULTS')
     print('------------------------------------------')
+
+    # Run test
     run = execute_run(inv_system_args, 100)
     run.get_log_df().head()
     print()

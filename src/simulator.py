@@ -4,9 +4,7 @@ from collections import defaultdict
 import numpy as np
 
 class BaseInventorySystem():
-
     def __init__(self, starting_value=150, order_lead_time=3,starting_period=0, reorder_point=100, order_up_to=200) -> None:
-        # Inventory modeled as list
         self.inventory = starting_value
         self.period = starting_period
         self.reorder_point = reorder_point
@@ -17,28 +15,30 @@ class BaseInventorySystem():
 
 
     def replenish(self, quantity):
+        # We have a replenish method that can be easily used to add loss
+        # Ex: inventory += quantity * 0.95
         self.inventory += quantity
         
 
     def fulfill_demand(self, demand):
-        # Check if we have enough demand
-        net_change = self.inventory - demand        
-        self.unmet_demand = min(net_change,0)
-        if net_change > 0:
+        # Inventory post-demand
+        new_inventory = self.inventory - demand        
+        self.unmet_demand = min(new_inventory,0)
+        
+        # Check if we have enough invntory to fulfill demand
+        if new_inventory > 0: 
             # Net change is positive then we subtract demand from inventory
-            # Update inventory
-            self.inventory = net_change
+            self.inventory = new_inventory
         else:
             # Net change is negative, meaning we have lost sales
-            # Update inventory 
             self.inventory = 0
-    
-            
+
+        # Log metrics
         self.log[self.period]['unmet_demand'] = abs(self.unmet_demand)
         self.log[self.period]['demand'] = demand
 
 
-    def create_order(self):
+    def place_order(self):
         if self.inventory <= self.reorder_point:
             ## TODO - add current on order amount to calculation.
             order_quantity = self.order_up_to - self.inventory
@@ -51,8 +51,7 @@ class BaseInventorySystem():
 
     def deliver_orders(self):
         if len(self.order_log) > 0:
-            # If we have orders, we'll go through each one and check to see if they deliver
-            # during the current period
+            # If we have orders, we'll go through each one and check to see if they deliver during the current period
             for order in self.order_log:
                 if order.delivery_period == self.period:
                     self.replenish(order.quantity)
@@ -76,7 +75,6 @@ class BaseInventorySystem():
         self.period += 1
 
 
-
 class Order():
     def __init__(self, lead_time, quantity, created_period):
         self.lead_time = lead_time
@@ -89,16 +87,17 @@ class Order():
         self.status='DELIVERED'
                 
 
-
 def sample_demand():
+    # This can be any sampling function, as long as it returns a float
     return round(np.random.normal(40,5), 0)
 
 
 class InventorySimulation():
+    # Orchestrator class to simulate an inventory system
     def __init__(self, system=BaseInventorySystem(), demand_sampler=sample_demand()):
-        # The inventory object to be simulated
-        self.system = system
-        self.demand_sampler = demand_sampler
+        self.system = system # the inventory object to be simulated
+        self.demand_sampler = demand_sampler # a demand sampler function
+
 
     def run(self, periods=100):
         # Simulate periods
@@ -106,10 +105,10 @@ class InventorySimulation():
             self.system.start_period()
             self.system.deliver_orders()
             self.system.fulfill_demand(self.demand_sampler())
-            self.system.create_order()
+            self.system.place_order()
             self.system.new_period()
 
-        # Create log DF
+        # Create log DataFrame
         self.log_df = pd.DataFrame.from_dict(self.system.log, orient='index')
 
 
@@ -121,4 +120,5 @@ class InventorySimulation():
         service_level = round(1 - self.log_df['unmet_demand'].sum() / self.log_df['demand'].sum(),4)
         oos_periods = sum(self.log_df['boh_start'] == 0)
         output = pd.DataFrame({'service_level':[service_level], 'oos_periods':[oos_periods]})
+        
         return output
