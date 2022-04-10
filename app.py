@@ -1,12 +1,10 @@
 import src.simulator as sim
 import pandas as pd
-import numpy as np
 import streamlit as st
 import plotly.express as px
 
-
 # ----------------------------------------------------
-# SIDEBAR: set run parameters
+# SIDEBAR: define run parameters
 # ----------------------------------------------------
 with st.sidebar:    
     RUN_PERIODS = st.slider('How many days to simulate?', 1, 400, 100)
@@ -17,7 +15,8 @@ with st.sidebar:
     if REORDER_POINT > ORDER_UP_TO:
         st.error('Reorder point must be less than order up to level.')
 
-    ORDER_LEAD_TIME = st.number_input('Order lead time', min_value=1, value=3)
+    # Order lead time can also be a function for sampling distribution
+    ORDER_LEAD_TIME = st.number_input('Order lead time', min_value=1, value=3) 
 
 
 # ----------------------------------------------------
@@ -35,14 +34,14 @@ run_log = run.log_df
 run_summary = run.get_summary()
  
 # ----------------------------------------------------
-# BUILD CHARTS
+# CREATE CHARTS
 # ----------------------------------------------------
 fig_inv_over_time = px.line(run_log, y='boh_start', title='Inventory over time')
 fig_demand_hist = px.histogram(run_log, x='demand', width=400, height=400, title='Demand Distribution')
 
 
 # ----------------------------------------------------
-# BUILD APP
+# APP MAIN PAGE
 # ----------------------------------------------------
 st.title('Inventory Simulation App')
 st.write('A very simple simulation. This is a continuous review inventory system, which means orders can be placed on any day.')

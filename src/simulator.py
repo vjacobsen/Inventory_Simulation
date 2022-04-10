@@ -1,5 +1,4 @@
 import pandas as pd
-from collections import defaultdict
 import numpy as np
 
 
@@ -16,6 +15,7 @@ class BaseInventorySystem():
         self.order_up_to = order_up_to
         self.order_lead_time = order_lead_time
         self.log = {}
+        self.order_log_dict = {} # Format 'delivery_period':[list of orders]
         self.order_log = []
 
 
@@ -93,6 +93,7 @@ class BaseInventorySystem():
 
         return self.log_df
 
+
     def get_summary(self):
         service_level = round(1 - self.log_df['unmet_demand'].sum() / self.log_df['demand'].sum(),4)
         oos_periods = sum(self.log_df['boh_start'] == 0)
@@ -126,10 +127,11 @@ class BatchSimulator():
 def execute_run(inv_system_args, sampler, run_periods):
     '''
     Executes single inventory simulation run with specified parameters.
+
+    Returns:
+        object: simulation with results executed.
     '''
-
     simulation = BaseInventorySystem(**inv_system_args)
-
     simulation.run(demand_sampler=sampler, periods=run_periods)
 
     return simulation
