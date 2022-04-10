@@ -1,4 +1,4 @@
-import run_simulation
+import src.simulator as sim
 import pandas as pd
 import numpy as np
 import streamlit as st
@@ -23,7 +23,6 @@ with st.sidebar:
 # ----------------------------------------------------
 # EXECUTION: run simulation with selected params
 # ----------------------------------------------------
-
 inv_system_args = {
     "starting_value": STARTING_INVENTORY,
     'order_up_to':ORDER_UP_TO,
@@ -31,8 +30,8 @@ inv_system_args = {
     'order_lead_time': ORDER_LEAD_TIME
 }
 
-run = run_simulation.execute_run(inv_system_args, RUN_PERIODS)
-run_log = run.get_log_df()
+run = sim.execute_run(inv_system_args, sim.sample_demand, RUN_PERIODS)
+run_log = run.log_df
 run_summary = run.get_summary()
  
 # ----------------------------------------------------
