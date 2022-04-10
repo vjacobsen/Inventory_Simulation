@@ -1,5 +1,7 @@
 import pandas as pd
 import numpy as np
+from collections import defaultdict
+
 
 
 def sample_demand():
@@ -15,8 +17,7 @@ class BaseInventorySystem():
         self.order_up_to = order_up_to
         self.order_lead_time = order_lead_time
         self.log = {}
-        self.order_log_dict = {} # Format 'delivery_period':[list of orders]
-        self.order_log = []
+        self.order_log_dict = defaultdict(lambda: 0) # Format: 'delivery_period':'qty_to_be_delivered'
 
 
     def replenish(self, quantity):
@@ -44,25 +45,25 @@ class BaseInventorySystem():
 
 
     def place_order(self):
-        if self.inventory <= self.reorder_point:
-            ## TODO - add current on order amount to calculation.
-            order_quantity = self.order_up_to - self.inventory
-            new_order = Order(self.order_lead_time, order_quantity, self.period)
-            self.order_log.append(new_order)
+        # Orders to be delivered in future periods
+        in_transit_qty = sum([v for k,v in self.order_log_dict.items() if k > self.period])
+
+        # If total inventory < reorder point
+        if self.inventory  + in_transit_qty <= self.reorder_point:
+            order_quantity = self.order_up_to - self.inventory - in_transit_qty
+            lead_time = self.order_lead_time  # lead time could be a sampling function, add support for this in future
+            # Register order to be delivered in future period
+            self.order_log_dict[self.period + lead_time] += order_quantity
             self.log[self.period]['ordered'] = order_quantity
         else:
             self.log[self.period]['ordered'] = 0
                     
 
     def deliver_orders(self):
-        if len(self.order_log) > 0:
-            # If we have orders, we'll go through each one and check to see if they deliver during the current period
-            for order in self.order_log:
-                if order.delivery_period == self.period:
-                    self.replenish(order.quantity)
-                    order.update_status()
-                    self.log[self.period]['delivered'] += order.quantity
-                    
+        deliver_qty = self.order_log_dict[self.period]
+        self.replenish(deliver_qty)
+        self.log[self.period]['delivered'] += deliver_qty
+                
 
     def start_period(self):
         # Set up logging dict
@@ -100,18 +101,6 @@ class BaseInventorySystem():
         summary_df = pd.DataFrame({'service_level':[service_level], 'oos_periods':[oos_periods]})
         
         return summary_df
-
-
-class Order():
-    def __init__(self, lead_time, quantity, created_period):
-        self.lead_time = lead_time
-        self.quantity = quantity
-        self.created_period = created_period
-        self.delivery_period = self.created_period +  self.lead_time
-        self.status = 'IN TRANSIT'
-
-    def update_status(self):
-        self.status='DELIVERED'
                 
 
 class BatchSimulator():
