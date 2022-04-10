@@ -1,4 +1,3 @@
-from re import L
 import pandas as pd
 from collections import defaultdict
 import numpy as np
@@ -86,7 +85,7 @@ class BaseInventorySystem():
         for _ in range(0, periods):
             self.start_period()
             self.deliver_orders()
-            self.fulfill_demand(sample_demand())
+            self.fulfill_demand(demand_sampler())
             self.place_order()
             self.new_period()
 
@@ -123,4 +122,14 @@ class BatchSimulator():
         # Replicate runs for a number of iterations
         pass
         
-    
+
+def execute_run(inv_system_args, sampler, run_periods):
+    '''
+    Executes single inventory simulation run with specified parameters.
+    '''
+
+    simulation = BaseInventorySystem(**inv_system_args)
+
+    simulation.run(demand_sampler=sampler, periods=run_periods)
+
+    return simulation
