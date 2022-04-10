@@ -75,6 +75,27 @@ class BaseInventorySystem():
         self.period += 1
 
 
+    def run(self, demand_sampler=sample_demand(), periods=100):
+        # Orchestrator for simulating inventory periods
+        for _ in range(0, periods):
+            self.start_period()
+            self.deliver_orders()
+            self.fulfill_demand(demand_sampler)
+            self.place_order()
+            self.new_period()
+
+        self.log_df = pd.DataFrame.from_dict(self.log, orient='index')
+
+        return self.log_df
+
+    def get_summary(self):
+        service_level = round(1 - self.log_df['unmet_demand'].sum() / self.log_df['demand'].sum(),4)
+        oos_periods = sum(self.log_df['boh_start'] == 0)
+        summary_df = pd.DataFrame({'service_level':[service_level], 'oos_periods':[oos_periods]})
+        
+        return summary_df
+
+
 class Order():
     def __init__(self, lead_time, quantity, created_period):
         self.lead_time = lead_time
@@ -92,33 +113,13 @@ def sample_demand():
     return round(np.random.normal(40,5), 0)
 
 
-class InventorySimulation():
-    # Orchestrator class to simulate an inventory system
-    def __init__(self, system=BaseInventorySystem(), demand_sampler=sample_demand()):
-        self.system = system # the inventory object to be simulated
-        self.demand_sampler = demand_sampler # a demand sampler function
 
-
-    def run(self, periods=100):
-        # Simulate periods
-        for _ in range(0, periods):
-            self.system.start_period()
-            self.system.deliver_orders()
-            self.system.fulfill_demand(self.demand_sampler())
-            self.system.place_order()
-            self.system.new_period()
-
-        # Create log DataFrame
-        self.log_df = pd.DataFrame.from_dict(self.system.log, orient='index')
-
-
-    def get_log_df(self):
-        return self.log_df
-
-
-    def get_summary(self):
-        service_level = round(1 - self.log_df['unmet_demand'].sum() / self.log_df['demand'].sum(),4)
-        oos_periods = sum(self.log_df['boh_start'] == 0)
-        output = pd.DataFrame({'service_level':[service_level], 'oos_periods':[oos_periods]})
+class BatchSimulator():
+    # Simulate inventory 
+    def __init__(self):
+        pass
+    
+    def replicate(self, system, iterations):
+        # Replicate runs for a number of iterations
         
-        return output
+    
