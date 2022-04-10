@@ -3,6 +3,12 @@ import pandas as pd
 from collections import defaultdict
 import numpy as np
 
+
+def sample_demand():
+    # This can be any sampling function, as long as it returns a float
+    return round(np.random.normal(40,5), 0)
+
+
 class BaseInventorySystem():
     def __init__(self, starting_value=150, order_lead_time=3,starting_period=0, reorder_point=100, order_up_to=200) -> None:
         self.inventory = starting_value
@@ -75,12 +81,12 @@ class BaseInventorySystem():
         self.period += 1
 
 
-    def run(self, demand_sampler=sample_demand(), periods=100):
+    def run(self, demand_sampler=sample_demand, periods=100):
         # Orchestrator for simulating inventory periods
         for _ in range(0, periods):
             self.start_period()
             self.deliver_orders()
-            self.fulfill_demand(demand_sampler)
+            self.fulfill_demand(sample_demand())
             self.place_order()
             self.new_period()
 
@@ -108,12 +114,6 @@ class Order():
         self.status='DELIVERED'
                 
 
-def sample_demand():
-    # This can be any sampling function, as long as it returns a float
-    return round(np.random.normal(40,5), 0)
-
-
-
 class BatchSimulator():
     # Simulate inventory 
     def __init__(self):
@@ -121,5 +121,6 @@ class BatchSimulator():
     
     def replicate(self, system, iterations):
         # Replicate runs for a number of iterations
+        pass
         
     

@@ -2,20 +2,18 @@ import pandas as pd
 from src import simulator as sim
 import numpy as np
 
+sim.sample_demand()
 
-def execute_run(inv_system_args, run_periods):
+def execute_run(inv_system_args, sampler, run_periods):
     '''
     Executes single inventory simulation run with specified parameters.
     '''
     
-    SIM = sim.InventorySimulation(
-        system=sim.BaseInventorySystem(**inv_system_args), 
-        demand_sampler=sim.sample_demand
-    )
+    simulation = sim.BaseInventorySystem(**inv_system_args)
 
-    SIM.run(run_periods)
+    simulation.run(demand_sampler=sampler, periods=run_periods)
     
-    return SIM
+    return simulation
 
 
 if __name__ == "__main__":
@@ -32,8 +30,8 @@ if __name__ == "__main__":
     print('------------------------------------------')
 
     # Run test
-    run = execute_run(inv_system_args, 100)
-    run.get_log_df().head()
+    run = execute_run(inv_system_args, sim.sample_demand, 100)
+    run.log_df.head()
     print()
     run.get_summary()
     
