@@ -2,7 +2,6 @@ import pandas as pd
 from src import simulator as sim
 import numpy as np
 
-
 if __name__ == "__main__":
     # Test run with parameters
     inv_system_args = {
