@@ -76,9 +76,10 @@ class BaseInventorySystem():
 
     
     def new_period(self):
-        self.unmet_demand = 0
+        # Register balance on hand at period end, prior to starting new period.
         self.log[self.period]['boh_end'] = self.inventory
         self.period += 1
+        self.unmet_demand = 0
 
 
     def run(self, demand_sampler=sample_demand, periods=100):
