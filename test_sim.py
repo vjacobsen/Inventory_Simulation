@@ -1,8 +1,8 @@
 import pandas as pd
-from src import simulator as sim
+from invsim import simulator as sim
 import numpy as np
 
-if __name__ == "__main__":
+def test_simulation():
     # Test run with parameters
     inv_system_args = {
     "starting_value": 200,
@@ -11,13 +11,20 @@ if __name__ == "__main__":
     'order_lead_time': 3
     }  
 
-    print('------------------------------------------')
-    print('TEST RUN RESULTS')
-    print('------------------------------------------')
-
     # Run test
     run = sim.execute_run(inv_system_args, sim.sample_demand, 100)
-    run.log_df.head()
+    print(run.log_df.head())
     print()
-    run.get_summary()
+    print(run.get_summary())
+
+    sl = run.get_summary()['service_level'].values[0]
+    
+    assert isinstance(sl, float)
+
+
+if __name__ == "__main__":
+    test_simulation()
+
+
+
     
