@@ -1,4 +1,4 @@
-import src.simulator as sim
+import invsim.simulator as sim
 import pandas as pd
 import streamlit as st
 import plotly.express as px
@@ -55,6 +55,7 @@ col3.metric('Average Demand', int(run_log['demand'].mean()))
 col4.metric('Average Inventory', int(run_log['boh_start'].mean()))
 
 # CHARTS
+# TODO - add demand distribution
 st.plotly_chart(fig_inv_over_time,use_container_width=True)
 st.plotly_chart(fig_demand_hist,use_container_width=True)
 
