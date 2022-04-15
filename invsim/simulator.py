@@ -2,11 +2,31 @@ import pandas as pd
 import numpy as np
 from collections import defaultdict
 
-
-
 def sample_demand():
     # This can be any sampling function, as long as it returns a float
     return round(np.random.normal(40,5), 0)
+
+
+def demand_dict():
+    '''
+    Configure demand choice dict
+    
+    Each entry in dict is in format 'distribution name':(configuration)
+    
+    Where `(configuration)` is a tuple with elements:
+    - distribution function: such as `np.random.normal`
+    - argument list: kwargs to be displayed for user input
+    - argument name list: argument names to be displayed to user, in place of default function kwarg
+    - default value list: kwarg default value to be displayed
+
+    '''
+    out = {
+        'normal':(np.random.normal,['loc','scale'], ['mean', 'standard deviation'], [5,2]),
+        'poisson':(np.random.poisson, ['lam'],['rate (lambda)'], [5]),
+        'gamma':(np.random.gamma,['shape', 'scale'],['shape', 'scale'],[3,2]) # Non negative
+        }
+
+    return out
 
 
 class BaseInventorySystem():
