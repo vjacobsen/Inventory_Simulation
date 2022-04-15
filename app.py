@@ -17,7 +17,8 @@ with st.sidebar:
 
     # Order lead time can also be a function for sampling distribution
     ORDER_LEAD_TIME = st.number_input('Order lead time', min_value=1, value=3) 
-
+    
+# TODO - add demand distribution configuration options
 
 # ----------------------------------------------------
 # EXECUTION: run simulation with selected params
@@ -55,7 +56,7 @@ col3.metric('Average Demand', int(run_log['demand'].mean()))
 col4.metric('Average Inventory', int(run_log['boh_start'].mean()))
 
 # CHARTS
-# TODO - add demand distribution
+# TODO - add demand distribution view
 st.plotly_chart(fig_inv_over_time,use_container_width=True)
 st.plotly_chart(fig_demand_hist,use_container_width=True)
 
