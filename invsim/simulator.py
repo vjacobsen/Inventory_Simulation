@@ -1,13 +1,14 @@
 import pandas as pd
 import numpy as np
 from collections import defaultdict
+import streamlit as st
 
 def sample_demand():
     # This can be any sampling function, as long as it returns a float
     return round(np.random.normal(40,5), 0)
 
-
-def demand_dict():
+@st.cache
+def load_demand_dict():
     '''
     Configure demand choice dict
     

@@ -6,7 +6,8 @@ import plotly.express as px
 # ----------------------------------------------------
 # SIDEBAR: define run parameters
 # ----------------------------------------------------
-demand_dict = sim.demand_dict()
+
+demand_dict = sim.load_demand_dict()
 
 with st.sidebar:  
     st.subheader('Replenishment parameters:')  
@@ -72,7 +73,6 @@ col3.metric('Average Demand', round(run_log['demand'].mean(),2))
 col4.metric('Average Inventory', int(run_log['boh_start'].mean()))
 
 # CHARTS
-# TODO - add demand distribution view
 st.plotly_chart(fig_inv_over_time,use_container_width=True)
 st.plotly_chart(fig_demand_hist,use_container_width=True)
 avg_demand = round(run_log['demand'].mean(),2)
